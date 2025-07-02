@@ -1,0 +1,11 @@
+opencv-python
+numpy
+tqdm
+scikit-image
+pillow
+scipy
+pyqt6
+jupyterlab
+ipykernel
+wheel
+setuptools
