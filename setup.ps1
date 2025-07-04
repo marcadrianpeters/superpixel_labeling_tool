@@ -10,7 +10,7 @@ $VENV_DIR = ".venv"
 try {
     $pythonVersionOutput = & python --version 2>&1
 } catch {
-    Write-Host "❌ Error: Python is not installed or not found in PATH."
+    Write-Host "Error: Python is not installed or not found in PATH."
     Write-Host "Please install Python 3.12 and try again."
     exit 1
 }
@@ -21,7 +21,7 @@ if ($pythonVersionOutput -match 'Python (\d+)\.(\d+)') {
     $minor = [int]$matches[2]
     $PYTHON_VERSION = "$major.$minor"
 } else {
-    Write-Host "❌ Could not parse Python version."
+    Write-Host "Could not parse Python version."
     exit 1
 }
 
@@ -41,7 +41,7 @@ function VersionCompare($v1, $v2) {
 }
 
 if (VersionCompare $PYTHON_VERSION $REQUIRED_VERSION -lt 0) {
-    Write-Host "⚠️ Warning: Detected Python $PYTHON_VERSION. This project is tested with Python $REQUIRED_VERSION."
+    Write-Host "Warning: Detected Python $PYTHON_VERSION. This project is tested with Python $REQUIRED_VERSION."
     Write-Host "    Proceeding anyway, but results may vary."
 }
 
@@ -53,7 +53,7 @@ python -m venv $VENV_DIR
 Write-Host "Activating virtual environment..."
 $activateScript = Join-Path $VENV_DIR "Scripts\Activate.ps1"
 if (-Not (Test-Path $activateScript)) {
-    Write-Host "❌ Could not find virtual environment activation script at $activateScript"
+    Write-Host "Could not find virtual environment activation script at $activateScript"
     exit 1
 }
 # Dot-source the activation script to activate virtual env in current session
@@ -72,6 +72,6 @@ Write-Host "Registering Jupyter kernel..."
 python -m ipykernel install --user --name $ENV_NAME --display-name "Python ($ENV_NAME)"
 
 # --- Final message ---
-Write-Host "✅ Setup complete."
+Write-Host "Setup complete."
 Write-Host "To activate the environment in future, run:"
 Write-Host "  .\$VENV_DIR\Scripts\Activate.ps1"
