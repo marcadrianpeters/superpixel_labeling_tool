@@ -779,6 +779,7 @@ class MainWindow(QMainWindow):
         fname = self.images[self.idx].name
         try:
             QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+            self._save_binary_mask()
             segment_image_cropped(self.cfg, fname, x1, y1, x2, y2)
             self._hint("Super‑pixels updated")
         except Exception as e:
