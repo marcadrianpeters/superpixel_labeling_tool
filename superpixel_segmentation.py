@@ -70,7 +70,7 @@ def segment_image(image_bgr: np.ndarray, config: SegmenterConfig) -> Tuple[np.nd
     image_rgb = downscale_image(image_rgb, config.downscale_factor)
 
     total_pixels = image_rgb.shape[0] * image_rgb.shape[1]
-    n_segments = max(2, min(65532, total_pixels //
+    n_segments = max(2, min(65534, total_pixels //
                      config.pixels_per_superpixel))
 
     labels = slic(image_rgb, n_segments=n_segments,
@@ -140,18 +140,6 @@ def segment_image_cropped(config: SegmenterConfig,
                           filename: Union[str, Path],
                           x1: int, y1: int, x2: int, y2: int
                           ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
-    """
-    Segment a cropped region of an image and merge back with full image mask.
-
-    Args:
-        config: Configuration object.
-        filename: Filename relative to input directory.
-        x1, y1, x2, y2: Bounding box coordinates (top-left inclusive, bottom-right exclusive).
-
-    Returns:
-        labels_full: Full-size label mask with cropped region segmented.
-        overlay_full: Overlay image or None if overlays disabled.
-    """
     img_path = config.input_dir / filename
     image = cv2.imread(str(img_path))
     if image is None:
@@ -165,29 +153,70 @@ def segment_image_cropped(config: SegmenterConfig,
         raise ValueError(f"Invalid crop bounding box: {(x1, y1, x2, y2)}")
 
     roi = image[y1_clipped:y2_clipped, x1_clipped:x2_clipped].copy()
-
     labels_roi, _ = segment_image(roi, config)
-    next_label = int(labels_roi.max()) + 1
 
-    labels_full = np.full((height, width), next_label, dtype=np.uint16)
-    labels_full[y1_clipped:y2_clipped, x1_clipped:x2_clipped] = labels_roi
+    stem = Path(filename).stem
+    mask_out_path = config.output_masks / f"{stem}.png"
+    mask_out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Check if existing mask exists
+    if mask_out_path.exists():
+        old_labels_full = cv2.imread(str(mask_out_path), cv2.IMREAD_UNCHANGED)
+        if old_labels_full is None or old_labels_full.shape != (height, width):
+            raise ValueError(
+                f"Corrupt or mismatched existing mask: {mask_out_path}")
+
+        # Extract non-overlapping region
+        labels_outside_box = old_labels_full.copy()
+        labels_outside_box[y1_clipped:y2_clipped, x1_clipped:x2_clipped] = 0
+        max_old_label = labels_outside_box.max()
+
+        if max_old_label == 0:
+            shift = 0
+        else:
+            shift = max_old_label + 1
+
+        # Shift new ROI labels
+        labels_roi_shifted = labels_roi.copy()
+        labels_roi_shifted[labels_roi > 0] += shift
+
+        max_new_label = labels_roi_shifted.max()
+        if max_new_label > 65533:
+            raise ValueError(
+                f"Superpixel label overflow: maximum label {max_new_label} exceeds 65535. Aborting merge.")
+
+        # Merge shifted new ROI into old mask
+        merged_labels = labels_outside_box
+        merged_labels[y1_clipped:y2_clipped,
+                      x1_clipped:x2_clipped] = labels_roi_shifted
+        labels_full = merged_labels
+
+    else:
+        next_label = int(labels_roi.max()) + 1
+        if next_label > 65533:
+            raise ValueError(
+                f"Superpixel label overflow: generated labels exceed 65535 (got max {labels_roi.max()}). Aborted.")
+        labels_full = np.full((height, width), next_label, dtype=np.uint16)
+        labels_full[y1_clipped:y2_clipped, x1_clipped:x2_clipped] = labels_roi
+
+    # Generate overlay if requested
     overlay_full = None
     if config.output_overlays is not None:
         overlay_full = overlay_boundaries(
             image, labels_full, config.overlay_color, config.overlay_alpha)
 
     # Save outputs
-    stem = Path(filename).stem
-    mask_out_path = config.output_masks / f"{stem}.png"
-    mask_out_path.parent.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(mask_out_path), labels_full,
-                [cv2.IMWRITE_PNG_COMPRESSION, 3])
+    try:
+        cv2.imwrite(str(mask_out_path), labels_full,
+                    [cv2.IMWRITE_PNG_COMPRESSION, 3])
 
-    if overlay_full is not None:
-        overlay_out_path = config.output_overlays / \
-            f"{stem}{Path(filename).suffix}"
-        overlay_out_path.parent.mkdir(parents=True, exist_ok=True)
-        cv2.imwrite(str(overlay_out_path), overlay_full)
+        if overlay_full is not None:
+            overlay_out_path = config.output_overlays / \
+                f"{stem}{Path(filename).suffix}"
+            overlay_out_path.parent.mkdir(parents=True, exist_ok=True)
+            cv2.imwrite(str(overlay_out_path), overlay_full)
+
+    except Exception as e:
+        raise RuntimeError(f"Failed to save outputs: {e}")
 
     return labels_full, overlay_full
