@@ -377,7 +377,7 @@ class MainWindow(QMainWindow):
             self._combo_status_changed)
         tb.addWidget(self.status_combo)
         tb.addSeparator()
-        tb.addAction(make_act("♻ Regenerate superpixel (r)",
+        tb.addAction(make_act("♻ (Re-) Generate superpixel (r)",
                      self.start_regen_mode, "r"))
         tb.addSeparator()
         tb.addAction(make_act("⏸ Pause (Space)", self._toggle_pause, "space"))
@@ -425,8 +425,6 @@ class MainWindow(QMainWindow):
         v.addWidget(self.view)        # image view in the middle
         v.addWidget(bottom_widget)    # navigation at the bottom
         self.setCentralWidget(central)
-
-        self.resize(1200, 800)
 
         # ---- timing ----------------------------------------------------
         self.start_time: float | None = None     # current‑image stopwatch start
@@ -807,7 +805,7 @@ def main():
     """)
 
     win = MainWindow(Path(sys.argv[1]).resolve())
-    win.show()
+    win.showMaximized()
     sys.exit(app.exec())
 
 
