@@ -4,13 +4,15 @@ This project provides an interactive GUI tool to accelerate image annotation by 
 
 ![Superpixel GUI Screenshot](screenshot.png)
 
+---
+
 ## Features
 
-- PyQt6-based GUI for efficient, manual region labeling using superpixels.
-- Batch-compatible pre-segmentation pipeline using SLIC.
-- Optional overlay visualization to aid labeling accuracy.
-- Jupyter and CLI support for preprocessing.
-- Parallel processing support for faster segmentation.
+- PyQt6-based GUI for efficient, manual region labeling using superpixels.  
+- Batch-compatible pre-segmentation pipeline using SLIC.  
+- Optional overlay visualization to aid labeling accuracy.  
+- Jupyter and CLI support for preprocessing.  
+- Parallel processing support for faster segmentation.  
 - Logs labeling status (`unlabeled`, `labeled`, `skip`, `review`) in `label_log.csv`.  
 - Status updates automatically or via GUI selection.  
 - All progress is saved on close, Ctrl+S, and after each frame change.
@@ -19,19 +21,42 @@ This project provides an interactive GUI tool to accelerate image annotation by 
 
 ---
 
-## Installation & Setup
+## Quick Start
+
+If you just want to use the GUI without precomputed masks and without installing Python, grab a prebuilt binary from the [Releases page](https://github.com/marcadrianpeters/superpixel_labeling_tool/releases):
+
+1. **Download**  
+   - **Linux:** `superpixel_labeling_tool-linux`  
+   - **Windows:** `superpixel_labeling_tool.exe`
+
+2. **Make executable (Linux only)**  
+   ```bash
+   chmod +x superpixel_labeling_tool-linux
+   ```
+
+3. **Run**  
+   - **Linux:**  
+     ```bash
+     ./superpixel_labeling_tool-linux
+     ```  
+   - **Windows:**  
+     Double-click `superpixel_labeling_tool.exe`  
+     > **Warning:** Windows may display an “Unknown Publisher” security warning. You can safely proceed by clicking **“Run anyway”**.
+
+4. **Select Dataset Folder**  
+   When the GUI opens, select your dataset’s root directory (e.g., `/path/to/dataset/`), which must include an `input/` subfolder containing your images.
+
+---
+
+## Installation & Setup (from Source)
 
 ### Prerequisites
 
 - **Python 3.12** must be installed and accessible via `python` or `python3`.
 
-> This project is tested with Python 3.12. Older versions may produce unpredictable results.
+> This project is tested with Python 3.12. Older versions may produce unpredictable results.
 
----
-
-### Quick Setup
-
-The project includes setup scripts for Linux/macOS and Windows (PowerShell) to create a virtual environment and install all dependencies.
+### Quick Setup Scripts
 
 #### Linux/macOS
 
@@ -45,17 +70,12 @@ bash install_env.sh
 .\setup.ps1
 ```
 
-> **Execution Policy Note**: If PowerShell restricts script execution, temporarily allow it for the session:
->
+> **Execution Policy Note**: If PowerShell restricts script execution, allow it temporarily:
 > ```powershell
 > Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 > ```
 
----
-
-### Activating the Environment
-
-Before running scripts or the GUI, activate the virtual environment:
+### Activate the Virtual Environment
 
 #### Linux/macOS
 
@@ -73,9 +93,9 @@ source .venv/bin/activate
 
 ## Workflow Overview
 
-The GUI now launches via a file dialog to select the dataset directory — no CLI argument is required. However, the dataset **must** follow the required directory structure and either include precomputed superpixel masks or have them manually generated via the GUI.
+The GUI launches via a file dialog. However, your dataset directory must follow the structure below and may include precomputed masks or generate them on the fly.
 
-### Step 1: Precompute Superpixel Masks (Optional but Recommended)
+### Step 1: (Optional) Precompute Superpixel Masks
 
 ```bash
 python run_superpixel_segmentation.py /path/to/dataset \
@@ -83,20 +103,16 @@ python run_superpixel_segmentation.py /path/to/dataset \
   --num_workers 4
 ```
 
-- `--pixels_per_superpixel`: Controls the superpixel size.
-- `--num_workers`: Number of parallel processes for speedup.
+- `--pixels_per_superpixel`: Controls the superpixel size.  
+- `--num_workers`: Number of parallel processes.
 
-> This step is optional: if `superpixel_masks/` is missing, you can regenerate superpixels manually from within the GUI using **`R` + drag**.
+> If `superpixel_masks/` is missing, you can generate masks manually in the GUI using **R + drag**.
 
----
-
-### Step 2: Launch the GUI for Labeling
+### Step 2: Launch the GUI
 
 ```bash
 python gui.py
 ```
-
-You will be prompted to select a dataset directory via a file dialog.
 
 Expected directory structure:
 
@@ -107,24 +123,23 @@ Expected directory structure:
 └── segmentation_masks/     # created by GUI; stores labeled masks
 ```
 
-> **Note:** If `segmentation_masks/` is missing, it will be created automatically.  
-> If `superpixel_masks/` is absent, **you must manually generate masks** using `R` + drag before labeling.
+> **Note:**  
+> - If `segmentation_masks/` is missing, it will be created automatically.  
+> - If `superpixel_masks/` is absent, you must regenerate masks via **R + drag** before labeling.
 
 ---
 
 ## GUI Controls
 
-- **Left-click:** Select/deselect superpixel.
-- **Right-click drag:** Brush select.
-- **D:** Change brush mode.
-- **F:** Fill enclosed holes.
-- **X:** Toggle superpixel boundary visibility.
-- **C:** Toggle segmentation mask visibility.
-- **R + Drag on image:** Regenerate superpixels in selected region.
-- **<- / -> (Arrow keys):** Navigate to next or previous image.
+- **Left-click:** Select/deselect superpixel.  
+- **Right-click drag:** Brush select.  
+- **D:** Change brush mode.  
+- **F:** Fill enclosed holes.  
+- **X:** Toggle superpixel boundary visibility.  
+- **C:** Toggle segmentation mask visibility.  
+- **R + Drag on image:** Regenerate superpixels in selected region.  
+- ** <- / -> (Arrow keys):** Navigate images.  
 - **Space:** Pause/unpause.
-
-> **Hint:** When using `R` + drag, a bounding box is drawn and the superpixels within it are re-segmented, while superpixel outside are kept. This enables rapid creation of segmentation masks with locally adaptive levels of detail.
 
 ---
 
