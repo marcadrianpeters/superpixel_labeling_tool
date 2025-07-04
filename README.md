@@ -73,9 +73,9 @@ source .venv/bin/activate
 
 ## Workflow Overview
 
-To use the GUI, you must first generate superpixel masks. The GUI is designed to operate on precomputed segmentations for maximum responsiveness.
+The GUI now launches via a file dialog to select the dataset directory — no CLI argument is required. However, the dataset **must** follow the required directory structure and either include precomputed superpixel masks or have them manually generated via the GUI.
 
-### Step 1: Precompute Superpixel Masks
+### Step 1: Precompute Superpixel Masks (Optional but Recommended)
 
 ```bash
 python run_superpixel_segmentation.py /path/to/dataset \
@@ -86,24 +86,29 @@ python run_superpixel_segmentation.py /path/to/dataset \
 - `--pixels_per_superpixel`: Controls the superpixel size.
 - `--num_workers`: Number of parallel processes for speedup.
 
-> Must be done before GUI use. Without precomputed masks, the GUI will not function correctly.
+> This step is optional: if `superpixel_masks/` is missing, you can regenerate superpixels manually from within the GUI using **`R` + drag**.
 
 ---
 
 ### Step 2: Launch the GUI for Labeling
 
 ```bash
-python gui.py /path/to/dataset/
+python gui.py
 ```
+
+You will be prompted to select a dataset directory via a file dialog.
 
 Expected directory structure:
 
 ```
 /path/to/dataset/
-├── input/                  # input images
-├── superpixel_masks/       # from Step 1
+├── input/                  # input images (required)
+├── superpixel_masks/       # optional; can be generated via GUI or script
 └── segmentation_masks/     # created by GUI; stores labeled masks
 ```
+
+> **Note:** If `segmentation_masks/` is missing, it will be created automatically.  
+> If `superpixel_masks/` is absent, **you must manually generate masks** using `R` + drag before labeling.
 
 ---
 
@@ -111,14 +116,16 @@ Expected directory structure:
 
 - **Left-click:** Select/deselect superpixel.
 - **Right-click drag:** Brush select.
-- **D:** Change brush mode
+- **D:** Change brush mode.
 - **F:** Fill enclosed holes.
 - **X:** Toggle superpixel boundary visibility.
 - **C:** Toggle segmentation mask visibility.
-- **R + Drag on image:** Regenerate superpixels in selected region
+- **R + Drag on image:** Regenerate superpixels in selected region.
+- **<- / -> (Arrow keys):** Navigate to next or previous image.
 - **Space:** Pause/unpause.
 
 > **Hint:** When using `R` + drag, a bounding box is drawn and the superpixels within it are re-segmented, while superpixel outside are kept. This enables rapid creation of segmentation masks with locally adaptive levels of detail.
+
 ---
 
 ## Licensing Notice

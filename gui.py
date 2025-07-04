@@ -16,6 +16,7 @@ superpixel segmentation for faster and more precise region selection.
 """
 
 from __future__ import annotations
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout
 import csv
 import sys
@@ -32,7 +33,7 @@ from PyQt6.QtWidgets import (
     QApplication, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem,
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit,
     QSlider, QProgressBar, QToolBar, QMessageBox, QLabel, QRubberBand,
-    QComboBox
+    QComboBox, QFileDialog
 )
 
 
@@ -790,21 +791,89 @@ class MainWindow(QMainWindow):
 # ---------------------------------------------------------------- entry
 
 
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python labeling_tool_qt.py /path/to/base_dir")
-        sys.exit(1)
+def select_base_dir():
+    # Open a folder selection dialog
+    folder = QFileDialog.getExistingDirectory(
+        None,
+        "Select base directory containing 'input' folder or the 'input' folder itself"
+    )
+    if not folder:
+        return None  # User cancelled
+    return Path(folder).resolve()
 
+
+def resolve_input_dir(selected_dir: Path):
+    """
+    Given the user-selected directory (could be base_dir or 'input' dir),
+    return (base_dir, input_dir).
+
+    - If selected_dir is named 'input', input_dir = selected_dir,
+      base_dir = selected_dir.parent
+    - Else, input_dir = selected_dir / 'input'
+      base_dir = selected_dir
+
+    Return (base_dir, input_dir) if input_dir exists, else (None, None)
+    """
+    if not selected_dir.is_dir():
+        return None, None
+
+    if selected_dir.name == "input":
+        base_dir = selected_dir.parent
+        input_dir = selected_dir
+    else:
+        base_dir = selected_dir
+        input_dir = base_dir / "input"
+
+    if input_dir.is_dir():
+        return base_dir, input_dir
+
+    return None, None
+
+
+def contains_images(directory: Path):
+    """
+    Check if the directory contains at least one image file.
+    Define image extensions explicitly.
+    """
+    for file in directory.iterdir():
+        if file.is_file() and file.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".gif"}:
+            return True
+    return False
+
+
+def main():
     app = QApplication(sys.argv)
 
-    # ---- global UI style (bigger fonts)
+    while True:
+        selected_dir = select_base_dir()
+        if selected_dir is None:
+            print("No directory selected, exiting.")
+            sys.exit(1)
+
+        base_dir, input_dir = resolve_input_dir(selected_dir)
+        if base_dir is None or input_dir is None:
+            QMessageBox.critical(
+                None, "Error", 'No "input" directory found in the selected folder or its parent.')
+            # Loop continues, dialog respawns
+            continue
+
+        if not contains_images(input_dir):
+            QMessageBox.critical(
+                None, "Error", 'No images found inside the "input" directory.')
+            # Loop continues, dialog respawns
+            continue
+
+        # Valid selection found, break the loop
+        break
+
+    # Global UI style (bigger fonts)
     app.setStyleSheet("""
         QWidget            { font-size: 16px; }
         QToolBar QToolButton { font-size: 16px; }
         QProgressBar       { min-height: 16px; }
     """)
 
-    win = MainWindow(Path(sys.argv[1]).resolve())
+    win = MainWindow(base_dir)
     win.showMaximized()
     sys.exit(app.exec())
 
