@@ -309,7 +309,7 @@ class MainWindow(QMainWindow):
             d.mkdir(exist_ok=True)
 
         self.images = natural_sort([
-            p for p in self.in_dir.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp"}
+            p for p in self.in_dir.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".gif"}
         ])
         if not self.images:
             QMessageBox.critical(self, "Err", "No images in input/")
@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
             # → first run: enumerate directory and create fresh ledger
             self.images = natural_sort([
                 p for p in self.in_dir.iterdir()
-                if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp"}
+                if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".gif"}
             ])
             self.status = {p.name: "unlabeled" for p in self.images}
             self.time_spent = {p.name: 0.0 for p in self.images}
