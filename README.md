@@ -118,7 +118,7 @@ Expected directory structure:
 - **R + Drag on image:** Regenerate superpixels in selected region
 - **Space:** Pause/unpause.
 
-> **Hint:** When using `R` + drag, a bounding box is drawn and the superpixels within it are re-segmented, while the area outside the box is treated as a single superpixel.
+> **Hint:** When using `R` + drag, a bounding box is drawn and the superpixels within it are re-segmented, while superpixel outside are kept. This enables rapid creation of segmentation masks with locally adaptive levels of detail.
 ---
 
 ## Licensing Notice
