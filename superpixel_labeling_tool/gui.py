@@ -39,7 +39,7 @@ from PyQt6.QtWidgets import (
 
 import time
 
-from superpixel_segmentation import segment_image_cropped, SegmenterConfig
+from superpixel_labeling_tool.segmentation import segment_image_cropped, SegmenterConfig
 
 # ---------------------------------------------------------------- utilities
 
@@ -383,6 +383,8 @@ class MainWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(make_act("⏸ Pause (Space)", self._toggle_pause, "space"))
         tb.addSeparator()
+        tb.addAction(make_act("ℹ️ About", self._show_about))
+        tb.addSeparator()
 
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, tb)
 
@@ -443,6 +445,21 @@ class MainWindow(QMainWindow):
         sc_next = QShortcut(QKeySequence(Qt.Key.Key_Right), self)
         sc_next.setContext(Qt.ShortcutContext.WindowShortcut)
         sc_next.activated.connect(self.next_image)
+
+    def _show_about(parent=None):
+        QMessageBox.about(
+            parent,
+            "About",
+            """
+            <b>Superpixel Labeling Tool</b><br>
+            Version: 0.1.0<br><br>
+            An interactive GUI to accelerate image annotation via SLIC-based superpixel segmentation.
+            Label entire regions instead of individual pixels - boosting speed and consistency.<br><br>
+            <a href="https://github.com/marcadrianpeters/superpixel_labeling_tool">GitHub Repository</a><br><br>
+            Author: Marc Adrian Peters<br>
+            E-Mail: <a href="mailto:marcadrianpeters@gmail.com">marcadrianpeters@gmail.com</a>
+            """
+        )
 
     # ------------------------------ keep pause overlay full‑size
 
