@@ -1,4 +1,5 @@
-  name: Release
+# .github/workflows/build.yml
+name: Release
 
 on:
   push:
