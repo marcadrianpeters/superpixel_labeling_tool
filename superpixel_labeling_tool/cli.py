@@ -7,7 +7,7 @@ from pathlib import Path
 import argparse
 from typing import Tuple
 
-from superpixel_segmentation import SegmenterConfig, process_dataset
+from superpixel_labeling_tool.segmentation import SegmenterConfig, process_dataset
 
 
 def parse_int_tuple(text: str, length: int) -> Tuple[int, ...]:

@@ -39,7 +39,7 @@ from PyQt6.QtWidgets import (
 
 import time
 
-from superpixel_segmentation import segment_image_cropped, SegmenterConfig
+from superpixel_labeling_tool.segmentation import segment_image_cropped, SegmenterConfig
 
 # ---------------------------------------------------------------- utilities
 

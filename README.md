@@ -2,7 +2,7 @@
 
 This project provides an interactive GUI tool to accelerate image annotation by leveraging superpixel segmentation. It uses SLIC-based superpixels to divide images into coherent regions, enabling users to label entire segments instead of individual pixels, significantly reducing annotation time and effort.
 
-![Superpixel GUI Screenshot](screenshot.png)
+![Superpixel GUI Screenshot](assets/screenshot.png)
 
 ---
 
