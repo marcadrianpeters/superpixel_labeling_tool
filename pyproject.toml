@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "superpixel_labeling_tool"
+version = "0.1.0"
+description = "Tool for superpixel-based annotation and segmentation mask generation."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Marc Adrian Peters", email = "marcadrianpeters@gmail.com" }
+]
+dependencies = [
+    "opencv-python",
+    "numpy",
+    "tqdm",
+    "scikit-image",
+    "pillow",
+    "scipy",
+    "pyqt6"
+]
+
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev = [
+    "jupyterlab",
+    "ipykernel"
+]
+
+[project.scripts]
+superpixel_labeling_tool = "superpixel_labeling_tool.gui:main"
+run_superpixel_segmentation = "superpixel_labeling_tool.cli:main"
+
+[tool.setuptools]
+packages = ["superpixel_labeling_tool"]
+include-package-data = true
