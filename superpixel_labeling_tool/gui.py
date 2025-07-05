@@ -452,7 +452,7 @@ class MainWindow(QMainWindow):
             "About",
             """
             <b>Superpixel Labeling Tool</b><br>
-            Version: 0.1.0<br><br>
+            Version: 0.1.1<br><br>
             An interactive GUI to accelerate image annotation via SLIC-based superpixel segmentation.
             Label entire regions instead of individual pixels - boosting speed and consistency.<br><br>
             <a href="https://github.com/marcadrianpeters/superpixel_labeling_tool">GitHub Repository</a><br><br>

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "superpixel_labeling_tool"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tool for superpixel-based annotation and segmentation mask generation."
 readme = "README.md"
 license = { file = "LICENSE" }
